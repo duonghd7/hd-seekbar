@@ -1,0 +1,2 @@
+include ':app', ':DSeekBar'
+project(':DSeekBar').projectDir = new File('app/libs/DSeekBar')
