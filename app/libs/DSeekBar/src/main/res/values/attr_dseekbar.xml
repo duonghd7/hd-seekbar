@@ -13,10 +13,12 @@
         <attr name="dThumbTextColor"            format="color"/>
 
         <attr name="dShowTopThumb"              format="boolean"/>
+        <attr name="dThumbTopMargin"            format="dimension"/>
     </declare-styleable>
 
     <dimen name="dProgressHeight">2dp</dimen>
     <dimen name="dThumbHeight">15dp</dimen>
     <dimen name="dThumbWidth">50dp</dimen>
     <dimen name="dThumbTextSize">8dp</dimen>
+    <dimen name="dThumbTopMargin">40dp</dimen>
 </resources>
