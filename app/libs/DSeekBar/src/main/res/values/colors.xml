@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_progress_loaded">#4A66CC</color>
+    <color name="bg_thumbnail">#091972</color>
+    <color name="bg_progress">#FFFFFF</color>
+    <color name="text_thumb_color">#FFFFFF</color>
+</resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DSeekBar">
+        <attr name="dProgressHeight"            format="dimension"/>
+        <attr name="dProgressColor"             format="color"/>
+        <attr name="dProgressLoadedColor"       format="color"/>
+
+        <attr name="dThumbHeight"               format="dimension"/>
+        <attr name="dThumbWidth"                format="dimension"/>
+
+        <attr name="dThumbColor"                format="color"/>
+        <attr name="dThumbTextSize"             format="dimension"/>
+        <attr name="dThumbTextColor"            format="color"/>
+
+        <attr name="dShowTopThumb"              format="boolean"/>
+    </declare-styleable>
+
+    <dimen name="dProgressHeight">2dp</dimen>
+    <dimen name="dThumbHeight">15dp</dimen>
+    <dimen name="dThumbWidth">50dp</dimen>
+    <dimen name="dThumbTextSize">8dp</dimen>
+</resources>
