@@ -2,14 +2,9 @@ package com.hdd.seekbar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -28,7 +23,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
-public class DSeekBar extends FrameLayout {
+public class DSeekBar extends FrameLayout implements DSeekFunction {
     private int dProgressHeight;
     private int dProgressColor;
     private int dProgressLoadedColor;
@@ -254,16 +249,66 @@ public class DSeekBar extends FrameLayout {
             topX = x - termX;
         }
 
-        float loaded = 100f * x / (seekWidth - dThumbWidth);
         tvTopThumb.setTranslationX(topX);
-        tvTopThumb.setText(String.format("%2.2f%s", loaded, "%"));
         tvThumb.setTranslationX(x);
-        tvThumb.setText(String.format("%2.2f%s", loaded, "%"));
     }
 
     private void setThumbColor(Context context, View view, int color) {
         Drawable mDrawable = ContextCompat.getDrawable(context, R.drawable.bg_thumbnail);
         mDrawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
         view.setBackground(mDrawable);
+    }
+
+    private float dSeekXPercent;
+
+    @Override
+    public void setSeek(float percent) {
+        if (percent < 0 || percent > 1) {
+            return;
+        }
+        dSeekXPercent = percent;
+    }
+
+    @Override
+    public void setSeek(float percent, String text) {
+        if (percent < 0 || percent > 1) {
+            return;
+        }
+        dSeekXPercent = percent;
+
+        tvThumb.setText(text);
+        tvTopThumb.setText(text);
+    }
+
+    @Override
+    public void setSeek(float duration, float totalDuration) {
+        float percent = duration / totalDuration;
+        if (percent < 0 || percent > 1) {
+            return;
+        }
+        dSeekXPercent = percent;
+    }
+
+    @Override
+    public void setSeek(float duration, float totalDuration, String text) {
+
+    }
+
+    @Override
+    public void setDSeekChangeListener(DSeekChangeListener dSeekChangeListener) {
+
+    }
+
+    @Override
+    public void setDSeekErrorListener(DSeekErrorListener dSeekErrorListener) {
+
+    }
+
+    public interface DSeekChangeListener {
+        void onChange(float duration, float totalDuration, float percent, String text);
+    }
+
+    public interface DSeekErrorListener {
+        void onError(String error);
     }
 }
