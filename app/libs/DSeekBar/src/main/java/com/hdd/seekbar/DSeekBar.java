@@ -2,14 +2,8 @@ package com.hdd.seekbar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -18,6 +12,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -114,10 +109,13 @@ public class DSeekBar extends FrameLayout {
                 new LinearLayout.LayoutParams((int) (dThumbWidth * scaleTopThumb), (int) (dThumbHeight * 1.5));
         tvTopThumbLayoutParam.setMargins(0, 0, 0, dThumbTopMargin);
         tvTopThumb.setLayoutParams(tvTopThumbLayoutParam);
-        setThumbColor(context, tvTopThumb, dThumbColor);
+        replaceBackgroundColor(context, tvTopThumb, dThumbColor);
         tvTopThumb.setTextColor(dThumbTextColor);
         tvTopThumb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, LibUtils.pxToDp(context, dThumbTextSize) * scaleTopThumb);
         tvTopThumb.setGravity(Gravity.CENTER);
+
+        tvTopThumb.setAlpha(0);
+        tvTopThumb.setVisibility(dShowTopThumb ? View.VISIBLE : View.GONE);
         /*
          * add TopThumb to Linear rootView
          * */
@@ -144,19 +142,19 @@ public class DSeekBar extends FrameLayout {
 
         vLoadedProgress = new View(context);
         vLoadedProgress.setLayoutParams(new LinearLayout.LayoutParams(dThumbWidth / 2, LayoutParams.MATCH_PARENT));
-        vLoadedProgress.setBackgroundColor(dProgressLoadedColor);
+        replaceBackgroundColor(context, vLoadedProgress, dProgressLoadedColor);
         llProgress.addView(vLoadedProgress);
 
         View vProgress = new View(context);
         vProgress.setLayoutParams(new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
-        vProgress.setBackgroundColor(dProgressColor);
+        replaceBackgroundColor(context, vProgress, dProgressColor);
         llProgress.addView(vProgress);
 
         constraintProgress.addView(llProgress);
 
         tvThumb = new TextView(context);
         tvThumb.setLayoutParams(new ConstraintLayout.LayoutParams(dThumbWidth, dThumbHeight));
-        setThumbColor(context, tvThumb, dThumbColor);
+        replaceBackgroundColor(context, tvThumb, dThumbColor);
         tvThumb.setTextColor(dThumbTextColor);
         tvThumb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, LibUtils.pxToDp(context, dThumbTextSize));
         tvThumb.setId(tvThumbID);
@@ -166,7 +164,6 @@ public class DSeekBar extends FrameLayout {
         vTouchView = new View(context);
         vTouchView.setLayoutParams(new ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT, LibUtils.dpToPx(context, 40)));
         vTouchView.setId(vTouchViewID);
-        vTouchView.setBackgroundColor(Color.parseColor("#1A3F51B5"));
         constraintProgress.addView(vTouchView);
 
         ConstraintSet constraintSet = new ConstraintSet();
@@ -219,17 +216,16 @@ public class DSeekBar extends FrameLayout {
 
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        Log.e("TAG", "touched down: " + x);
+                        tvTopThumb.animate().alpha(1f).setDuration(120);
                         updateThumbX(x);
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        Log.e("TAG", "movingX: " + x);
                         updateThumbX(x);
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        Log.e("TAG", "touched up: " + x);
+                        tvTopThumb.animate().alpha(0f).setDuration(120);
                         updateThumbX(x);
                         break;
                 }
@@ -261,8 +257,8 @@ public class DSeekBar extends FrameLayout {
         tvThumb.setText(String.format("%2.2f%s", loaded, "%"));
     }
 
-    private void setThumbColor(Context context, View view, int color) {
-        Drawable mDrawable = ContextCompat.getDrawable(context, R.drawable.bg_thumbnail);
+    private void replaceBackgroundColor(Context context, View view, int color) {
+        Drawable mDrawable = ContextCompat.getDrawable(context, R.drawable.bg_radius);
         mDrawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
         view.setBackground(mDrawable);
     }
