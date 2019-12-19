@@ -220,6 +220,8 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
                     x = x - dThumbWidth / 2;
                 }
 
+                canUpdate = motionEvent.getAction() == MotionEvent.ACTION_UP;
+
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         if (totalDuration < 0) {
@@ -234,6 +236,9 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
                             tvTopThumb.animate().alpha(1f).setDuration(120);
                             xPercent = 1f * x / (seekWidth - dThumbWidth);
                             duration = (int) (xPercent * totalDuration);
+                            if (dSeekListener != null) {
+                                dSeekListener.onChange(duration, totalDuration, xPercent, tvThumb.getText().toString(), canUpdate);
+                            }
                             updateThumbX(x);
                         }
                         break;
@@ -250,6 +255,9 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
                         } else {
                             xPercent = 1f * x / (seekWidth - dThumbWidth);
                             duration = (int) (xPercent * totalDuration);
+                            if (dSeekListener != null) {
+                                dSeekListener.onChange(duration, totalDuration, xPercent, tvThumb.getText().toString(), canUpdate);
+                            }
                             updateThumbX(x);
                         }
                         break;
@@ -270,12 +278,11 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
                             tvTopThumb.animate().alpha(0f).setDuration(120);
                             updateThumbX(x);
                             if (dSeekListener != null) {
-                                dSeekListener.onChange(duration, totalDuration, xPercent, tvThumb.getText().toString());
+                                dSeekListener.onChange(duration, totalDuration, xPercent, tvThumb.getText().toString(), canUpdate);
                             }
                         }
                         break;
                 }
-                canUpdate = motionEvent.getAction() == MotionEvent.ACTION_UP;
                 return motionEvent.getAction() != MotionEvent.ACTION_UP;
             }
         });
@@ -372,7 +379,7 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
     }
 
     public interface DSeekListener {
-        void onChange(int duration, int totalDuration, float percent, String text);
+        void onChange(int duration, int totalDuration, float percent, String text, boolean isFocus);
 
         void onError(String error);
     }
