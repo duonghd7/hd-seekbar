@@ -8,15 +8,13 @@ package com.hdd.seekbar;
 
 public interface DSeekFunction {
 
-    void setSeek(float percent);
+    DSeekBar setTotalDuration(int totalDuration);
 
-    void setSeek(float percent, String text);
+    DSeekBar setDuration(int duration);
 
-    void setSeek(float duration, float totalDuration);
+    DSeekBar setDSeekListener(DSeekBar.DSeekListener dSeekListener);
 
-    void setSeek(float duration, float totalDuration, String text);
+    int getTotalDuration();
 
-    void setDSeekChangeListener(DSeekBar.DSeekChangeListener dSeekChangeListener);
-
-    void setDSeekErrorListener(DSeekBar.DSeekErrorListener dSeekErrorListener);
+    int getDuration();
 }

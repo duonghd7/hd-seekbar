@@ -17,8 +17,8 @@
     </declare-styleable>
 
     <dimen name="dProgressHeight">2dp</dimen>
-    <dimen name="dThumbHeight">15dp</dimen>
-    <dimen name="dThumbWidth">50dp</dimen>
-    <dimen name="dThumbTextSize">8dp</dimen>
+    <dimen name="dThumbHeight">20dp</dimen>
+    <dimen name="dThumbWidth">60dp</dimen>
+    <dimen name="dThumbTextSize">10dp</dimen>
     <dimen name="dThumbTopMargin">40dp</dimen>
 </resources>

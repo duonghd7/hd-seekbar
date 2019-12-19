@@ -1,18 +1,12 @@
 package com.hdd.seekbar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -45,6 +39,8 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
 
     private int seekWidth;
     private int seekHeight;
+
+    private DSeekListener dSeekListener;
 
     public DSeekBar(@NonNull Context context) {
         super(context);
@@ -193,6 +189,10 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
     }
 
     private boolean isFirstMeasure = true;
+    private int totalDuration = 0;
+    private int duration = 0;
+    private float xPercent = 0;
+    private boolean canUpdate = true;
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -200,12 +200,13 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
         seekHeight = MeasureSpec.getSize(heightMeasureSpec);
         if (isFirstMeasure) {
             isFirstMeasure = false;
-        } else {
             handlerTouchView(vTouchView);
+            update();
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void handlerTouchView(View vTouchView) {
         vTouchView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -221,23 +222,82 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
 
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        tvTopThumb.animate().alpha(1f).setDuration(120);
-                        updateThumbX(x);
+                        if (totalDuration < 0) {
+                            if (dSeekListener != null) {
+                                dSeekListener.onError("Total duration is incorrect!");
+                            }
+                        } else if (totalDuration == 0) {
+                            if (dSeekListener != null) {
+                                dSeekListener.onError("Total duration is 0!");
+                            }
+                        } else {
+                            tvTopThumb.animate().alpha(1f).setDuration(120);
+                            xPercent = 1f * x / (seekWidth - dThumbWidth);
+                            duration = (int) (xPercent * totalDuration);
+                            updateThumbX(x);
+                        }
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        updateThumbX(x);
+                        if (totalDuration < 0) {
+                            if (dSeekListener != null) {
+                                dSeekListener.onError("Total duration is incorrect!");
+                            }
+                        } else if (totalDuration == 0) {
+                            if (dSeekListener != null) {
+                                dSeekListener.onError("Total duration is 0!");
+                            }
+                        } else {
+                            xPercent = 1f * x / (seekWidth - dThumbWidth);
+                            duration = (int) (xPercent * totalDuration);
+                            updateThumbX(x);
+                        }
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        tvTopThumb.animate().alpha(0f).setDuration(120);
-                        updateThumbX(x);
+                        if (totalDuration < 0) {
+                            if (dSeekListener != null) {
+                                dSeekListener.onError("Total duration is incorrect!");
+                            }
+                        } else if (totalDuration == 0) {
+                            if (dSeekListener != null) {
+                                dSeekListener.onError("Total duration is 0!");
+                            }
+                        } else {
+                            xPercent = 1f * x / (seekWidth - dThumbWidth);
+                            duration = (int) (xPercent * totalDuration);
+
+                            tvTopThumb.animate().alpha(0f).setDuration(120);
+                            updateThumbX(x);
+                            if (dSeekListener != null) {
+                                dSeekListener.onChange(duration, totalDuration, xPercent, tvThumb.getText().toString());
+                            }
+                        }
                         break;
                 }
-
+                canUpdate = motionEvent.getAction() == MotionEvent.ACTION_UP;
                 return motionEvent.getAction() != MotionEvent.ACTION_UP;
             }
         });
+    }
+
+    private void update() {
+        if (totalDuration < 0) {
+            if (dSeekListener != null) {
+                dSeekListener.onError("Total duration is incorrect!");
+            }
+        } else if (totalDuration == 0) {
+            if (dSeekListener != null) {
+                dSeekListener.onError("Total duration is 0!");
+            }
+        } else if (duration > totalDuration) {
+            xPercent = 1f;
+            duration = totalDuration;
+            updateThumbX((int) (xPercent * (seekWidth - dThumbWidth)));
+        } else {
+            xPercent = 1f * duration / totalDuration;
+            updateThumbX((int) (xPercent * (seekWidth - dThumbWidth)));
+        }
     }
 
     private void updateThumbX(int x) {
@@ -246,7 +306,7 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
         vLoadedProgress.setLayoutParams(layoutParams);
 
         int topX;
-        int termX = (tvTopThumb.getWidth() - tvThumb.getWidth()) / 2;
+        int termX = ((int) (dThumbWidth * scaleTopThumb) - dThumbWidth) / 2;
         if (x < termX) {
             topX = 0;
         } else if (x > seekWidth - tvTopThumb.getWidth() + termX) {
@@ -255,66 +315,65 @@ public class DSeekBar extends FrameLayout implements DSeekFunction {
             topX = x - termX;
         }
 
-        tvTopThumb.setTranslationX(topX);
+        String text = getTime(duration) + " / " + getTime(totalDuration);
+        tvThumb.setText(text);
+        tvTopThumb.setText(text);
+
         tvThumb.setTranslationX(x);
+        tvTopThumb.setTranslationX(topX);
+    }
+
+    @SuppressLint("DefaultLocale")
+    private String getTime(int duration) {
+        int dur = duration / 1000;
+        int min = dur / 60;
+        int sec = dur % 60;
+
+        return String.format("%d:%02d", min, sec);
     }
 
     private void replaceBackgroundColor(Context context, View view, int color) {
         Drawable mDrawable = ContextCompat.getDrawable(context, R.drawable.bg_radius);
-        mDrawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
-        view.setBackground(mDrawable);
-    }
-
-    private float dSeekXPercent;
-
-    @Override
-    public void setSeek(float percent) {
-        if (percent < 0 || percent > 1) {
-            return;
+        if (mDrawable != null) {
+            mDrawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+            view.setBackground(mDrawable);
         }
-        dSeekXPercent = percent;
     }
 
     @Override
-    public void setSeek(float percent, String text) {
-        if (percent < 0 || percent > 1) {
-            return;
+    public DSeekBar setTotalDuration(int totalDuration) {
+        this.totalDuration = totalDuration;
+        return this;
+    }
+
+    @Override
+    public DSeekBar setDuration(int duration) {
+        this.duration = duration;
+        if (!isFirstMeasure && canUpdate) {
+            update();
         }
-        dSeekXPercent = percent;
-
-        tvThumb.setText(text);
-        tvTopThumb.setText(text);
+        return this;
     }
 
     @Override
-    public void setSeek(float duration, float totalDuration) {
-        float percent = duration / totalDuration;
-        if (percent < 0 || percent > 1) {
-            return;
-        }
-        dSeekXPercent = percent;
+    public DSeekBar setDSeekListener(DSeekListener dSeekListener) {
+        this.dSeekListener = dSeekListener;
+        return this;
     }
 
     @Override
-    public void setSeek(float duration, float totalDuration, String text) {
-
+    public int getTotalDuration() {
+        return totalDuration;
     }
 
     @Override
-    public void setDSeekChangeListener(DSeekChangeListener dSeekChangeListener) {
-
+    public int getDuration() {
+        return duration;
     }
 
-    @Override
-    public void setDSeekErrorListener(DSeekErrorListener dSeekErrorListener) {
+    public interface DSeekListener {
+        void onChange(int duration, int totalDuration, float percent, String text);
 
-    }
-
-    public interface DSeekChangeListener {
-        void onChange(float duration, float totalDuration, float percent, String text);
-    }
-
-    public interface DSeekErrorListener {
         void onError(String error);
     }
 }
