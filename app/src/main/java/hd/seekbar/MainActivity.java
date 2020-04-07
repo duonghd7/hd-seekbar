@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         dSeekBar.setTotalDuration(180000)
                 .setDSeekListener(new DSeekBar.DSeekListener() {
                     @Override
-                    public void onChange(int duration, int totalDuration, float percent, String text) {
+                    public void onChange(int duration, int totalDuration, float percent, String text, boolean isFocus) {
                         i = duration;
                         Log.e("test", text);
                     }
