@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,12 +9,21 @@
     tools:context=".MainActivity">
 
     <com.hdd.seekbar.DSeekBar
-        android:id="@+id/activity_main_dsb_seek_bar"
+        android:id="@+id/dSeekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="100dp"
         android:layout_marginRight="50dp"
         android:layout_marginBottom="50dp"
-        app:dShowTopThumb="true" />
-</LinearLayout>
+        app:dProgressColor="#ff0000"
+        app:dProgressHeight="2dp"
+        app:dProgressLoadedColor="#8F0000"
+        app:dShowTopThumb="true"
+        app:dThumbColor="#0000FF"
+        app:dThumbHeight="20dp"
+        app:dThumbTextColor="#FFFFFF"
+        app:dThumbTextSize="14sp"
+        app:dThumbTopMargin="20dp"
+        app:dThumbWidth="70dp" />
+</androidx.appcompat.widget.LinearLayoutCompat>
