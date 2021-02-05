@@ -15,13 +15,17 @@ import java.util.TimerTask
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
+    private var isFocus = false
+    private var i = 0L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        dSeekbar.setTotalDuration(180000)
+        dSeekbar.setTotalDuration(60000)
             .setDSeekListener(object : DSeekListener {
                 override fun onChange(duration: Long, totalDuration: Long, percent: Float, text: String, isFocus: Boolean) {
-                    Log.e("test", text)
+                    this@MainActivity.isFocus = isFocus
+                    this@MainActivity.i = duration
                 }
 
                 override fun onError(error: String) {
@@ -29,14 +33,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             })
 
-        var i = 0L
         Timer().schedule(
             object : TimerTask() {
                 override fun run() {
-                    runOnUiThread {
-                        dSeekbar.setDuration(i)
+                    if (!isFocus) {
+                        runOnUiThread {
+                            dSeekbar.setDuration(i)
+                        }
+                        i = if (i < dSeekbar.getTotalDuration()) i + 10 else 0
                     }
-                    i = if (i < dSeekbar.getTotalDuration()) i + 10 else 0
                 }
             },
             0,
